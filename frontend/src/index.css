@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-health-bgSoft text-health-navy selection:bg-health-blueLight selection:text-health-blueAccent;
+  }
+}
+
+/* Custom Healthcare UI Utilities */
+.health-card {
+  @apply bg-white border border-health-cardBorder rounded-xl shadow-card-subtle transition-all duration-200;
+}
+
+.health-card-pale {
+  @apply bg-health-cardPale border border-health-cardBorder rounded-xl shadow-card-subtle transition-all duration-200;
+}
+
+.health-button-primary {
+  @apply bg-health-blueAccent hover:bg-health-blueHover text-white font-medium px-5 py-3 rounded-xl shadow-sm transition-all duration-150 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2;
+}
+
+.health-button-secondary {
+  @apply bg-white hover:bg-health-cardPale text-health-navyMuted border border-health-cardBorder font-medium px-4 py-2.5 rounded-xl transition-all duration-150 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2;
+}
+
+.health-button-danger {
+  @apply bg-health-danger hover:bg-red-700 text-white font-medium px-4 py-2.5 rounded-xl transition-all duration-150 active:scale-[0.98] flex items-center justify-center gap-2;
+}
+
+/* Pulse animation for voice recording */
+@keyframes voice-ripple {
+  0% {
+    box-shadow: 0 0 0 0 rgba(29, 78, 216, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 24px rgba(29, 78, 216, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(29, 78, 216, 0);
+  }
+}
+
+.animate-voice-ripple {
+  animation: voice-ripple 1.8s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
