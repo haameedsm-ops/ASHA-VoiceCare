@@ -1,11 +1,15 @@
 /**
- * VoiceSocket Service
- * Manages WebSocket connection between React frontend and FastAPI / Gnani backend
- * Handles streaming PCM audio chunks, barge-in interruptions, and read-back audio playback.
+ * VoiceSocket service for the ASHA VoiceCare FastAPI WebSocket endpoint.
+ * Uses the current origin so HTTPS deployments automatically use WSS.
  */
 
+const getDefaultVoiceSocketUrl = () => {
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  return `${protocol}//${window.location.host}/ws/voice-register`;
+};
+
 export class VoiceSocketClient {
-  constructor({ url = 'ws://localhost:8000/ws/voice-register', onMessage, onError, onConnect, onClose } = {}) {
+  constructor({ url = getDefaultVoiceSocketUrl(), onMessage, onError, onConnect, onClose } = {}) {
     this.url = url;
     this.ws = null;
     this.onMessage = onMessage;
@@ -32,8 +36,6 @@ export class VoiceSocketClient {
           try {
             const data = JSON.parse(event.data);
             if (this.onMessage) this.onMessage(data);
-
-            // If read-back prompt is ready, play spoken audio
             if (data.event === 'READBACK_READY' && data.readback_text) {
               this.speakReadBack(data.readback_text);
             }
@@ -60,17 +62,11 @@ export class VoiceSocketClient {
   }
 
   startSession(language = 'hi-IN', beneficiaryId = null) {
-    this.sendJson({
-      action: 'START_SESSION',
-      language,
-      beneficiary_id: beneficiaryId,
-    });
+    this.sendJson({ action: 'START_SESSION', language, beneficiary_id: beneficiaryId });
   }
 
   sendAudioChunk(arrayBuffer) {
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(arrayBuffer);
-    }
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) this.ws.send(arrayBuffer);
   }
 
   stopStream() {
@@ -78,10 +74,7 @@ export class VoiceSocketClient {
   }
 
   triggerBargeIn() {
-    // 1. Immediately halt local audio playback (<50ms response)
     this.stopSpeechPlayback();
-
-    // 2. Notify backend agent orchestrator
     this.sendJson({ action: 'BARGE_IN' });
   }
 
@@ -106,9 +99,8 @@ export class VoiceSocketClient {
   speakReadBack(text) {
     if (!('speechSynthesis' in window)) return;
     this.stopSpeechPlayback();
-
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.95; // Slightly slower for clear clinical review
+    utterance.rate = 0.95;
     utterance.pitch = 1.0;
     this.currentSpeechUtterance = utterance;
     window.speechSynthesis.speak(utterance);

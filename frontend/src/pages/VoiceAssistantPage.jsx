@@ -28,7 +28,6 @@ export default function VoiceAssistantPage({ onNavigate, selectedLanguage, targe
     recorderRef.current = new AudioRecorder({ sampleRate: 16000 });
 
     socketRef.current = new VoiceSocketClient({
-      url: 'ws://localhost:8000/ws/voice-register',
       onConnect: () => setConnectionStatus('connected'),
       onClose: () => setConnectionStatus((status) => status === 'error' ? 'error' : 'disconnected'),
       onMessage: (msg) => {
