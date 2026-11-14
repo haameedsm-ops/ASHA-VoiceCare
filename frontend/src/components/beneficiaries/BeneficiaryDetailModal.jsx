@@ -7,12 +7,12 @@ export default function BeneficiaryDetailModal({ beneficiary, isOpen, onClose, o
   if (!isOpen || !beneficiary) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-health-navy/50 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-health-cardBorder max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-health-navy/55 p-3 backdrop-blur-sm sm:p-4">
+      <div className="flex max-h-[92vh] w-full max-w-2xl flex-col rounded-xl border border-health-cardBorder bg-white p-5 shadow-2xl sm:p-6">
         {/* Header */}
         <div className="flex items-start justify-between pb-4 border-b border-health-cardBorder">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-health-cardPale text-health-blueAccent font-bold text-lg flex items-center justify-center border border-health-cardBorder">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-health-cardBorder bg-health-lightMint text-lg font-bold text-health-deepGreen">
               {beneficiary.name.charAt(0)}
             </div>
             <div>
@@ -27,7 +27,7 @@ export default function BeneficiaryDetailModal({ beneficiary, isOpen, onClose, o
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition hover:bg-health-offWhite hover:text-health-navy"
           >
             <X className="w-5 h-5" />
           </button>
@@ -77,7 +77,7 @@ export default function BeneficiaryDetailModal({ beneficiary, isOpen, onClose, o
                 {beneficiary.visits.map((v) => (
                   <div
                     key={v.visitId}
-                    className="p-3.5 rounded-xl border border-health-cardBorder bg-white shadow-sm space-y-2"
+                    className="space-y-2 rounded-lg border border-health-cardBorder bg-white p-3.5 shadow-sm"
                   >
                     <div className="flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
@@ -87,7 +87,7 @@ export default function BeneficiaryDetailModal({ beneficiary, isOpen, onClose, o
                       <span className="text-slate-500">{v.date}</span>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-2 text-xs bg-slate-50 p-2 rounded-lg">
+                    <div className="grid grid-cols-3 gap-2 rounded-lg bg-health-offWhite p-2 text-xs">
                       <div>
                         <span className="text-slate-400 block text-[10px]">Weight</span>
                         <span className="font-semibold text-health-navy">{v.weight}</span>
@@ -98,7 +98,7 @@ export default function BeneficiaryDetailModal({ beneficiary, isOpen, onClose, o
                       </div>
                       <div>
                         <span className="text-slate-400 block text-[10px]">Next Visit</span>
-                        <span className="font-semibold text-health-blueAccent">{v.nextVisitDate}</span>
+                        <span className="font-semibold text-health-deepGreen">{v.nextVisitDate}</span>
                       </div>
                     </div>
 
@@ -132,9 +132,9 @@ export default function BeneficiaryDetailModal({ beneficiary, isOpen, onClose, o
               onClose();
               onRecordVisit(beneficiary);
             }}
-            className="health-button-primary text-xs py-2 px-4"
+            className="health-button-primary py-2 text-xs"
           >
-            <Mic className="w-4 h-4" />
+            <Mic className="h-4 w-4" />
             <span>Record New Spoken Visit</span>
           </button>
         </div>

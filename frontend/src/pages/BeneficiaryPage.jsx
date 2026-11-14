@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, UserPlus, Eye, Calendar, Weight, ChevronRight, Filter, AlertTriangle, Mic } from 'lucide-react';
+import { Search, UserPlus, Eye, CalendarDays, Weight, AlertTriangle, Mic, Users, MapPin } from 'lucide-react';
 import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
 import AddBeneficiaryModal from '../components/beneficiaries/AddBeneficiaryModal';
@@ -30,6 +30,10 @@ export default function BeneficiaryPage({ beneficiaries, onAddBeneficiary, onSel
 
     return matchesSearch && matchesCategory;
   });
+  const categoryCount = (category) =>
+    category === 'ALL'
+      ? beneficiaries.length
+      : beneficiaries.filter((beneficiary) => beneficiary.category === category).length;
 
   const handleStartVisit = (beneficiary) => {
     if (onSelectBeneficiaryForVisit) {
@@ -39,56 +43,73 @@ export default function BeneficiaryPage({ beneficiaries, onAddBeneficiary, onSel
   };
 
   return (
-    <div className="space-y-6 pb-20 md:pb-6 bg-health-offWhite text-health-charcoal">
-      {/* Header and Add Button */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-6 pb-24 text-health-charcoal md:pb-6">
+      <div className="flex flex-col gap-5 border-b border-health-cardBorder pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-health-navy tracking-tight">Beneficiary Register</h1>
-          <p className="text-xs sm:text-sm text-health-navyLight">
-            Rampur Village Sector 2 • {beneficiaries.length} Registered Community Members
+          <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-health-deepGreen">
+            <Users className="h-4 w-4" />
+            Community records
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-health-navy sm:text-3xl">Beneficiary Register</h1>
+          <p className="mt-1.5 text-sm text-health-navyLight">
+            Find and review household records · {beneficiaries.length} people in this session
           </p>
         </div>
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="health-button-primary text-sm py-2.5 px-4 self-start sm:self-auto"
+          className="health-button-primary self-start px-4 py-2.5 text-sm sm:self-auto"
         >
           <UserPlus className="w-4 h-4" />
           <span>Add Beneficiary</span>
         </button>
       </div>
 
-      {/* Search and Category Filter Bar */}
-      <div className="space-y-3">
+      <Card className="space-y-4">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-sm font-semibold text-health-navy">Search the register</h2>
+          <p className="text-xs text-health-navyLight">Filter by name, beneficiary ID, or hamlet.</p>
+        </div>
         <div className="relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-health-navyLight" />
           <input
             type="text"
             placeholder="Search by Beneficiary ID (e.g. BEN-102), Mother/Child Name, or Hamlet..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-health-cardBorder rounded-xl text-sm text-health-navy placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-health-blueAccent/20 focus:border-health-blueAccent"
+            aria-label="Search beneficiaries"
+            className="w-full rounded-lg border border-health-cardBorder bg-health-offWhite py-3 pl-10 pr-4 text-sm text-health-navy placeholder-slate-400 transition focus:border-health-deepGreen focus:bg-white focus:outline-none focus:ring-2 focus:ring-health-deepGreen/15"
           />
         </div>
 
-        {/* Category Pill Filters */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+        <div className="flex flex-wrap gap-2 border-t border-health-cardBorder pt-4">
           {categories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition ${
+              aria-pressed={selectedCategory === cat.id}
+              className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold whitespace-nowrap transition ${
                 selectedCategory === cat.id
-                  ? 'bg-health-blueAccent text-white shadow-sm'
-                  : 'bg-white text-health-navyLight hover:text-health-navy border border-health-cardBorder'
+                  ? 'border-health-deepGreen bg-health-deepGreen text-white shadow-sm'
+                  : 'border-health-cardBorder bg-white text-health-navyLight hover:border-health-deepGreen/40 hover:text-health-navy'
               }`}
             >
               {cat.label}
+              <span className={`rounded px-1.5 py-0.5 text-[10px] ${selectedCategory === cat.id ? 'bg-white/15 text-white' : 'bg-health-offWhite text-health-navyLight'}`}>
+                {categoryCount(cat.id)}
+              </span>
             </button>
           ))}
         </div>
+      </Card>
+
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h2 className="font-semibold text-health-navy">Household records</h2>
+          <p className="mt-0.5 text-xs text-health-navyLight">{filtered.length} matching {filtered.length === 1 ? 'record' : 'records'}</p>
+        </div>
+        <span className="hidden text-xs text-health-navyLight sm:inline">Select a record to review history or start a visit</span>
       </div>
 
-      {/* Beneficiaries Count & List */}
       <div className="grid gap-3">
         {filtered.length === 0 ? (
           <Card className="py-12 text-center">
@@ -99,56 +120,60 @@ export default function BeneficiaryPage({ beneficiaries, onAddBeneficiary, onSel
           filtered.map((b) => (
             <Card
               key={b.id}
-              className="hover:shadow-card-hover flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition"
+              className="group flex flex-col justify-between gap-4 border-l-4 border-l-transparent transition hover:border-l-health-deepGreen sm:flex-row sm:items-center"
             >
-              <div className="flex items-start gap-3.5">
-                <div className="w-11 h-11 rounded-2xl bg-health-cardPale text-health-blueAccent font-bold text-base flex items-center justify-center shrink-0 border border-health-cardBorder">
+              <div className="flex min-w-0 items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-health-cardBorder bg-health-lightMint text-lg font-bold text-health-deepGreen">
                   {b.name.charAt(0)}
                 </div>
-                <div>
+                <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-bold text-sm sm:text-base text-health-navy">{b.name}</span>
+                    <span className="text-sm font-bold text-health-navy sm:text-base">{b.name}</span>
                     <Badge variant="default" size="sm">{b.id}</Badge>
                     {b.recentAlert && (
                       <Badge variant="danger" size="sm">
-                        <AlertTriangle className="w-3 h-3 text-rose-600" />
-                        <span>Danger Sign Flagged</span>
+                        <AlertTriangle className="h-3 w-3 text-rose-600" />
+                        <span>Safety alert</span>
                       </Badge>
                     )}
                   </div>
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-health-navyLight mt-1.5">
-                    <span className="font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <span className="rounded-md border border-health-cardBorder bg-health-offWhite px-2 py-1 text-[11px] font-semibold text-health-navy">
                       {b.categoryDetail}
                     </span>
-                    <span>{b.hamlet}</span>
-                    <span className="flex items-center gap-1">
-                      <Weight className="w-3.5 h-3.5 text-slate-400" />
+                  </div>
+                  <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-health-navyLight sm:grid-cols-3">
+                    <span className="flex min-w-0 items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5 shrink-0 text-health-deepGreen" />
+                      <span className="truncate">{b.hamlet}</span>
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Weight className="h-3.5 w-3.5 text-health-deepGreen" />
                       <span>{b.currentWeight} kg</span>
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Last: {b.lastVisitDate}</span>
+                    <span className="col-span-2 flex items-center gap-1.5 sm:col-span-1">
+                      <CalendarDays className="h-3.5 w-3.5 text-health-deepGreen" />
+                      <span>Last visit {b.lastVisitDate}</span>
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+              <div className="flex shrink-0 items-center gap-2 border-t border-health-cardBorder pt-3 sm:border-0 sm:pt-0">
                 <button
                   onClick={() => setActiveBeneficiaryModal(b)}
-                  className="health-button-secondary text-xs py-2 px-3"
+                  className="health-button-secondary py-2 text-xs"
                   title="View past visits and history"
                 >
-                  <Eye className="w-3.5 h-3.5 text-slate-500" />
+                  <Eye className="h-3.5 w-3.5 text-health-navyLight" />
                   <span>History ({b.visits?.length || 0})</span>
                 </button>
                 <button
                   onClick={() => handleStartVisit(b)}
-                  className="health-button-primary text-xs py-2 px-3.5"
+                  className="health-button-primary py-2 text-xs"
                   title="Record Spoken Visit"
                 >
-                  <Mic className="w-3.5 h-3.5" />
+                  <Mic className="h-3.5 w-3.5" />
                   <span>Record Visit</span>
                 </button>
               </div>

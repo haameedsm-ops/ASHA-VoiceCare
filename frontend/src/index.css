@@ -18,19 +18,27 @@
 }
 
 .health-card-pale {
-  @apply bg-health-cardPale border border-health-cardBorder rounded-xl shadow-card-subtle transition-all duration-200;
+  @apply bg-health-lightMint/40 border border-health-cardBorder rounded-xl shadow-card-subtle transition-all duration-200;
 }
 
 .health-button-primary {
-  @apply bg-health-blueAccent hover:bg-health-blueHover text-white font-medium px-5 py-3 rounded-xl shadow-sm transition-all duration-150 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2;
+  @apply bg-health-deepGreen hover:bg-health-darkNavy text-white font-semibold px-5 py-3 rounded-lg shadow-sm transition-all duration-150 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2;
 }
 
 .health-button-secondary {
-  @apply bg-white hover:bg-health-cardPale text-health-navyMuted border border-health-cardBorder font-medium px-4 py-2.5 rounded-xl transition-all duration-150 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2;
+  @apply bg-white hover:bg-health-offWhite text-health-navy border border-health-cardBorder font-semibold px-4 py-2.5 rounded-lg transition-all duration-150 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2;
 }
 
 .health-button-danger {
   @apply bg-health-danger hover:bg-red-700 text-white font-medium px-4 py-2.5 rounded-xl transition-all duration-150 active:scale-[0.98] flex items-center justify-center gap-2;
+}
+
+.health-input {
+  @apply w-full rounded-lg border border-health-cardBorder bg-health-offWhite px-3.5 py-2.5 text-sm text-health-navy placeholder:text-slate-400 transition focus:border-health-deepGreen focus:bg-white focus:outline-none focus:ring-2 focus:ring-health-deepGreen/15;
+}
+
+.health-label {
+  @apply mb-1.5 block text-xs font-semibold text-health-navy;
 }
 
 /* Pulse animation for voice recording */

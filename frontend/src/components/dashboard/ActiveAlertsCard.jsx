@@ -1,49 +1,68 @@
 import React from 'react';
-import { AlertTriangle, ShieldAlert, ArrowRight } from 'lucide-react';
+import { AlertTriangle, ShieldAlert, ArrowRight, CircleAlert } from 'lucide-react';
 import Card from '../common/Card';
 import Badge from '../common/Badge';
 
 export default function ActiveAlertsCard({ alerts, onNavigate }) {
   return (
-    <Card className="space-y-4 border-l-4 border-l-rose-500">
-      <div className="flex items-center justify-between pb-2 border-b border-health-cardBorder">
-        <div className="flex items-center gap-2">
-          <ShieldAlert className="w-5 h-5 text-rose-600" />
-          <h2 className="font-bold text-base text-health-navy">Current Safety Alerts</h2>
-        </div>
-        <Badge variant="danger" size="sm">{alerts.length} Open Alerts</Badge>
-      </div>
-
-      <div className="space-y-3">
-        {alerts.map((alert) => (
-          <div
-            key={alert.id}
-            className="p-3.5 rounded-xl bg-rose-50/70 border border-rose-200/80 space-y-2"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-xs text-rose-900">{alert.beneficiaryName}</span>
-                <span className="text-[10px] font-mono font-bold bg-white px-2 py-0.5 rounded border border-rose-200 text-rose-700">
-                  {alert.beneficiaryId}
-                </span>
-              </div>
-              <span className="text-[10px] font-bold text-rose-700 uppercase bg-rose-100 px-2 py-0.5 rounded">
-                {alert.severity}
-              </span>
-            </div>
-
-            <p className="text-xs font-semibold text-rose-950">{alert.triggerReason}</p>
-            <p className="text-[11px] text-rose-800 leading-relaxed bg-white/70 p-2 rounded border border-rose-200/60">
-              <strong>PHC Referral Guidance:</strong> {alert.guidance}
-            </p>
+    <Card className="space-y-5">
+      <div className="flex items-center justify-between gap-3 border-b border-health-cardBorder pb-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-700">
+            <ShieldAlert className="h-5 w-5" />
           </div>
-        ))}
+          <div>
+            <h2 className="font-bold text-base text-health-navy">Current Safety Alerts</h2>
+            <p className="mt-0.5 text-xs text-health-navyLight">Review referral and care reminders</p>
+          </div>
+        </div>
+        <Badge variant={alerts.length ? 'danger' : 'success'} size="sm">{alerts.length} Open</Badge>
       </div>
 
-      <div className="pt-2 flex justify-end">
+      {alerts.length === 0 ? (
+        <div className="rounded-lg border border-dashed border-health-cardBorder bg-health-offWhite px-4 py-8 text-center">
+          <ShieldAlert className="mx-auto h-6 w-6 text-health-navyLight/60" />
+          <p className="mt-2 text-sm font-semibold text-health-navy">No current alerts</p>
+          <p className="mt-1 text-xs text-health-navyLight">New safety items will be listed here.</p>
+        </div>
+      ) : <div className="space-y-3">
+        {alerts.map((alert) => {
+          const immediate = alert.severity === 'IMMEDIATE_PHC_REFERRAL';
+          return (
+            <article
+              key={alert.id}
+              className={`space-y-3 rounded-lg border p-4 ${
+                immediate
+                  ? 'border-rose-200 bg-rose-50/70'
+                  : 'border-amber-200 bg-amber-50/60'
+              }`}
+            >
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div className="flex items-start gap-2.5">
+                  <CircleAlert className={`mt-0.5 h-4 w-4 shrink-0 ${immediate ? 'text-rose-700' : 'text-amber-700'}`} />
+                  <div>
+                    <p className="font-semibold text-sm text-health-navy">{alert.beneficiaryName}</p>
+                    <p className="mt-0.5 font-mono text-[11px] text-health-navyLight">{alert.beneficiaryId}</p>
+                  </div>
+                </div>
+                <Badge variant={immediate ? 'danger' : 'warning'} size="sm">
+                  {immediate ? 'Immediate referral' : 'Follow-up'}
+                </Badge>
+              </div>
+
+              <p className="text-sm font-medium leading-5 text-health-charcoal">{alert.triggerReason}</p>
+              <div className="rounded-md border border-white/80 bg-white/80 p-3 text-xs leading-5 text-health-navyLight">
+                <strong className="text-health-navy">Recommended next step:</strong> {alert.guidance}
+              </div>
+            </article>
+          );
+        })}
+      </div>}
+
+      <div className="flex justify-end border-t border-health-cardBorder pt-3">
         <button
           onClick={() => onNavigate('followups')}
-          className="text-xs font-semibold text-health-blueAccent hover:underline flex items-center gap-1"
+          className="flex items-center gap-1 text-xs font-semibold text-health-deepGreen hover:underline"
         >
           <span>Open Follow-Up & Referral Tracker</span>
           <ArrowRight className="w-3.5 h-3.5" />

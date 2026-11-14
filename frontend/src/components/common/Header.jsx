@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mic, Globe } from 'lucide-react';
+import { Globe, ChevronDown } from 'lucide-react';
 
 export default function Header({ selectedLanguage, onLanguageChange, activeTab, onTabChange }) {
   const languages = [
@@ -12,20 +12,22 @@ export default function Header({ selectedLanguage, onLanguageChange, activeTab, 
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-health-cardBorder">
-      <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+    <header className="sticky top-0 z-40 border-b border-health-cardBorder bg-white/95 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
         {/* Brand identity */}
-        <div 
+        <button
+          type="button"
           onClick={() => onTabChange('dashboard')}
-          className="flex items-center gap-2.5 cursor-pointer group"
+          className="group flex items-center gap-3 rounded-lg text-left"
+          aria-label="ASHA VoiceCare dashboard"
         >
-          <div className="w-10 h-10 rounded-xl bg-health-blueAccent flex items-center justify-center text-white shadow-sm group-hover:bg-health-blueHover transition">
-            <Mic className="w-5 h-5" />
+          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-health-cardBorder bg-white p-0.5 shadow-sm transition-colors group-hover:border-health-deepGreen/40">
+            <img src="/asha-voicecare-logo.png" alt="" className="h-full w-full object-contain" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-lg text-health-navy tracking-tight">ASHA VoiceCare</span>
-              <span className="hidden sm:inline-block text-[11px] font-semibold uppercase tracking-wider bg-health-cardPale text-health-blueAccent px-2 py-0.5 rounded border border-health-cardBorder">
+              <span className="text-base font-bold tracking-tight text-health-navy sm:text-lg">ASHA VoiceCare</span>
+              <span className="hidden rounded border border-health-cardBorder bg-health-lightMint px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-health-deepGreen sm:inline-block">
                 Field Register
               </span>
             </div>
@@ -33,17 +35,18 @@ export default function Header({ selectedLanguage, onLanguageChange, activeTab, 
               Community health field register · Demonstration
             </p>
           </div>
-        </div>
+        </button>
 
         {/* Right side controls */}
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Language Selector */}
-          <div className="flex items-center gap-1.5 bg-health-cardPale border border-health-cardBorder rounded-lg px-2.5 py-1.5 text-xs text-health-navy">
-            <Globe className="w-3.5 h-3.5 text-health-blueAccent shrink-0" />
+          <label className="flex items-center gap-1.5 rounded-lg border border-health-cardBorder bg-health-offWhite px-2.5 py-1.5 text-xs text-health-navy">
+            <Globe className="h-3.5 w-3.5 shrink-0 text-health-deepGreen" />
             <select
               value={selectedLanguage}
               onChange={(e) => onLanguageChange(e.target.value)}
-              className="bg-transparent font-medium focus:outline-none cursor-pointer text-xs pr-1"
+              aria-label="Select language"
+              className="cursor-pointer bg-transparent pr-1 text-xs font-medium focus:outline-none"
             >
               {languages.map((lang) => (
                 <option key={lang.code} value={lang.code}>
@@ -51,12 +54,13 @@ export default function Header({ selectedLanguage, onLanguageChange, activeTab, 
                 </option>
               ))}
             </select>
-          </div>
+            <ChevronDown className="hidden h-3 w-3 text-health-navyLight sm:block" />
+          </label>
 
           {/* Sync / Status Indicator */}
-          <div className="hidden md:flex items-center gap-1.5 text-xs font-medium text-health-navyLight bg-health-offWhite border border-health-cardBorder px-2.5 py-1.5 rounded-lg">
-            <span className="w-2 h-2 rounded-full bg-health-deepGreen"></span>
-            <span>Demo workspace</span>
+          <div className="hidden items-center gap-1.5 rounded-lg border border-health-cardBorder bg-health-offWhite px-2.5 py-1.5 text-xs font-medium text-health-navyLight md:flex">
+            <span className="h-2 w-2 rounded-full bg-health-deepGreen"></span>
+            <span>Demonstration</span>
           </div>
         </div>
       </div>

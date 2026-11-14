@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle2, AlertTriangle, Edit3, Volume2, Save, Mic, ShieldAlert, ArrowLeft, Check, Sparkles } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, Edit3, Volume2, Save, Mic, ShieldAlert, ArrowLeft, Check, ClipboardCheck } from 'lucide-react';
 import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
 import { saveVerifiedVisit } from '../services/api';
@@ -115,55 +115,58 @@ export default function VerificationPage({ onNavigate, visitData, onVisitConfirm
   };
 
   return (
-    <div className="space-y-6 pb-24 md:pb-6 max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div className="mx-auto max-w-4xl space-y-6 pb-24 md:pb-6">
+      <div className="flex flex-col gap-4 border-b border-health-cardBorder pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <button
             onClick={() => onNavigate('voice')}
-            className="text-xs text-health-blueAccent hover:underline flex items-center gap-1 mb-1 font-semibold"
+            className="mb-3 flex items-center gap-1.5 text-xs font-semibold text-health-deepGreen hover:underline"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
+            <ArrowLeft className="h-3.5 w-3.5" />
             <span>Back to Voice Assistant</span>
           </button>
-          <h1 className="text-2xl font-bold text-health-navy tracking-tight">Visit Verification & Read-Back</h1>
-          <p className="text-xs sm:text-sm text-health-navyLight">
+          <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-health-deepGreen">
+            <ClipboardCheck className="h-4 w-4" />
+            Visit workflow · Step 2 of 2
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-health-navy sm:text-3xl">Visit Verification</h1>
+          <p className="mt-1.5 text-sm text-health-navyLight">
             Review and correct the captured visit fields before saving the register entry.
           </p>
         </div>
-        <Badge variant="success">
-          <CheckCircle2 className="w-3.5 h-3.5" />
-          <span>Review 5 Required Fields</span>
+        <Badge variant="warning">
+          <AlertTriangle className="h-3.5 w-3.5" />
+          <span>Review required fields</span>
         </Badge>
       </div>
 
       {/* Danger Sign Alert Banner if any flagged by MoHFW Rules Engine */}
       {alerts.length > 0 && (
-        <div className="p-4 rounded-xl bg-rose-50 border-2 border-rose-300 text-rose-900 space-y-2">
+        <div className="space-y-3 rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-900">
           <div className="flex items-center gap-2">
-            <ShieldAlert className="w-5 h-5 text-rose-600 shrink-0" />
-            <span className="font-bold text-xs uppercase tracking-wider text-rose-800">
-              Deterministic Safety Flag ({alerts[0].rule_id})
+            <ShieldAlert className="h-5 w-5 shrink-0 text-rose-700" />
+            <span className="text-xs font-bold uppercase tracking-wider text-rose-800">
+              Safety alert for review ({alerts[0].rule_id})
             </span>
           </div>
           <p className="text-sm font-bold">{alerts[0].title}</p>
-          <p className="text-xs leading-relaxed bg-white/80 p-2.5 rounded-lg border border-rose-200">
-            <strong>PHC Referral Action:</strong> {alerts[0].action_instructions || alerts[0].guidance}
+          <p className="rounded-lg border border-rose-200 bg-white/80 p-3 text-xs leading-relaxed">
+            <strong>Suggested referral action:</strong> {alerts[0].action_instructions || alerts[0].guidance}
           </p>
+          <p className="text-[11px] leading-5 text-rose-800">Confirm any safety concern and referral decision with a qualified health professional.</p>
         </div>
       )}
 
-      {/* Voice Read-Back Banner */}
-      <Card pale={true} className="border-health-cardBorder flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <Card pale={true} className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-health-blueAccent text-white flex items-center justify-center shrink-0">
-            <Volume2 className="w-5 h-5" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-health-deepGreen text-white">
+            <Volume2 className="h-5 w-5" />
           </div>
           <div>
-            <span className="text-xs font-bold text-health-blueAccent uppercase tracking-wider">
-              Visit Read-Back
+            <span className="text-xs font-bold uppercase tracking-wider text-health-deepGreen">
+              Visit summary read-back
             </span>
-            <p className="text-xs sm:text-sm text-health-navy mt-0.5">
+            <p className="mt-1 text-xs leading-5 text-health-navy sm:text-sm">
               <em>"I recorded beneficiary {fields.beneficiary_id.replace('BEN-', '')}, visit type {fields.visit_type}, weight {fields.weight} kilograms, vaccinations due {fields.vaccinations_due}, and next visit date {fields.next_visit_date}. Is this correct?"</em>
             </p>
           </div>
@@ -171,68 +174,75 @@ export default function VerificationPage({ onNavigate, visitData, onVisitConfirm
 
         <button
           onClick={() => setShowSpokenCorrectionModal(true)}
-          className="health-button-secondary text-xs shrink-0 py-2 px-3 self-start sm:self-auto"
+          className="health-button-secondary self-start py-2 text-xs sm:self-auto"
         >
-          <Mic className="w-3.5 h-3.5 text-health-blueAccent" />
+          <Mic className="h-3.5 w-3.5 text-health-deepGreen" />
           <span>Speak Correction</span>
         </button>
       </Card>
 
-      {/* 5 Mandatory Field Cards */}
-      <div className="grid sm:grid-cols-2 gap-4">
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <h2 className="font-semibold text-health-navy">Visit details</h2>
+          <p className="mt-0.5 text-xs text-health-navyLight">Edit any field that needs correction before saving.</p>
+        </div>
+        <span className="hidden text-xs text-health-navyLight sm:block">Required fields are marked</span>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
         {mandatoryCards.map((field) => (
-          <Card key={field.key} className="space-y-2 border-l-4 border-l-health-blueAccent">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-health-navyLight uppercase tracking-wider">
+          <Card key={field.key} className="space-y-3">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-health-navyLight">
                 {field.label}
               </span>
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                  MANDATORY
+                <span className="rounded border border-health-cardBorder bg-health-offWhite px-2 py-0.5 text-[10px] font-bold text-health-navyLight">
+                  REQUIRED
                 </span>
                 <button
                   onClick={() => handleStartEdit(field.key, field.value)}
-                  className="text-slate-400 hover:text-health-blueAccent p-1 rounded transition"
+                  className="rounded-md p-1.5 text-health-navyLight transition hover:bg-health-lightMint hover:text-health-deepGreen"
                   title="Edit field manually"
+                  aria-label={`Edit ${field.label}`}
                 >
-                  <Edit3 className="w-3.5 h-3.5" />
+                  <Edit3 className="h-3.5 w-3.5" />
                 </button>
               </div>
             </div>
 
             {isEditing === field.key ? (
-              <div className="flex items-center gap-2 pt-1">
+              <div className="flex items-center gap-2">
                 <input
                   type="text"
                   value={editValue}
                   onChange={(e) => setEditValue(e.target.value)}
-                  className="flex-1 px-3 py-1.5 border border-health-blueAccent rounded-lg text-sm text-health-navy focus:outline-none"
+                  aria-label={`Correct ${field.label}`}
+                  className="min-w-0 flex-1 rounded-lg border border-health-deepGreen bg-health-offWhite px-3 py-2 text-sm text-health-navy focus:outline-none focus:ring-2 focus:ring-health-deepGreen/15"
                   autoFocus
                 />
                 <button
                   onClick={() => handleSaveEdit(field.key)}
-                  className="bg-health-blueAccent text-white p-1.5 rounded-lg hover:bg-health-blueHover"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-health-deepGreen text-white transition hover:bg-health-darkNavy"
+                  aria-label={`Save ${field.label} correction`}
                 >
-                  <Check className="w-4 h-4" />
+                  <Check className="h-4 w-4" />
                 </button>
               </div>
             ) : (
-              <p className="text-lg font-bold text-health-navy tracking-tight">{field.value}</p>
+              <p className="break-words text-base font-semibold leading-6 text-health-navy">{field.value}</p>
             )}
           </Card>
         ))}
 
-        {/* Additional Clinical Notes */}
-        <Card className="sm:col-span-2 space-y-1 bg-slate-50 border-dashed">
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+        <Card pale={true} className="space-y-2 sm:col-span-2">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-health-navyLight">
             Clinical Observations / Visit Notes
           </span>
-          <p className="text-sm text-slate-700">{fields.visit_notes}</p>
+          <p className="text-sm leading-6 text-health-charcoal">{fields.visit_notes || 'No visit notes available.'}</p>
         </Card>
       </div>
 
-      {/* Confirmation Actions */}
-      <div className="pt-4 flex flex-col sm:flex-row items-center justify-end gap-3">
+      <div className="flex flex-col-reverse items-center justify-end gap-3 border-t border-health-cardBorder pt-5 sm:flex-row">
         <button
           onClick={() => onNavigate('voice')}
           className="health-button-secondary w-full sm:w-auto text-sm"
@@ -251,16 +261,16 @@ export default function VerificationPage({ onNavigate, visitData, onVisitConfirm
 
       {/* Spoken Correction Modal */}
       {showSpokenCorrectionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-health-navy/50 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-health-cardBorder space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-health-navy/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md space-y-4 rounded-xl border border-health-cardBorder bg-white p-6 shadow-2xl">
             <div className="flex items-center justify-between pb-2 border-b border-health-cardBorder">
               <div className="flex items-center gap-2">
-                <Mic className="w-5 h-5 text-health-blueAccent" />
-                <h3 className="font-bold text-base text-health-navy">Spoken Correction (Barge-In)</h3>
+                <Mic className="h-5 w-5 text-health-deepGreen" />
+                <h3 className="font-bold text-base text-health-navy">Correction</h3>
               </div>
             </div>
-            <p className="text-xs text-health-navyLight">
-              Speak or type your correction (e.g. <em>"Wait, weight is 3.10 kilograms"</em> or <em>"Next visit 2026-12-20"</em>).
+            <p className="text-xs leading-5 text-health-navyLight">
+            Enter a correction, such as a new weight in kilograms or a date in YYYY-MM-DD format.
             </p>
             <form onSubmit={handleApplySpokenCorrection} className="space-y-3">
               <input
@@ -268,7 +278,8 @@ export default function VerificationPage({ onNavigate, visitData, onVisitConfirm
                 placeholder="e.g. Weight is 3.10 kg"
                 value={spokenCorrectionInput}
                 onChange={(e) => setSpokenCorrectionInput(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-health-bgSoft border border-health-cardBorder rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-health-blueAccent/20"
+                aria-label="Correction details"
+                className="w-full rounded-lg border border-health-cardBorder bg-health-offWhite px-3.5 py-2.5 text-sm focus:border-health-deepGreen focus:outline-none focus:ring-2 focus:ring-health-deepGreen/15"
                 autoFocus
               />
               <div className="flex items-center justify-end gap-2 pt-2">

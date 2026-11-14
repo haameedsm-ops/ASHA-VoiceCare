@@ -1,59 +1,68 @@
 import React from 'react';
-import { Calendar, ChevronRight, AlertTriangle, FileCheck2 } from 'lucide-react';
+import { CalendarDays, ChevronRight, AlertTriangle, FileCheck2 } from 'lucide-react';
 import Card from '../common/Card';
 import Badge from '../common/Badge';
 
 export default function RecentVisitsCard({ visits, onNavigate }) {
   return (
-    <Card className="space-y-4">
-      <div className="flex items-center justify-between pb-2 border-b border-health-cardBorder">
-        <div className="flex items-center gap-2">
-          <FileCheck2 className="w-5 h-5 text-health-blueAccent" />
-          <h2 className="font-bold text-base text-health-navy">Recent Field Visits</h2>
+    <Card className="space-y-5">
+      <div className="flex items-center justify-between gap-3 border-b border-health-cardBorder pb-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-health-lightMint text-health-deepGreen">
+            <FileCheck2 className="h-5 w-5" />
+          </div>
+          <div>
+            <h2 className="font-bold text-base text-health-navy">Recent Field Visits</h2>
+            <p className="mt-0.5 text-xs text-health-navyLight">Latest entries in the session register</p>
+          </div>
         </div>
         <button
           onClick={() => onNavigate('history')}
-          className="text-xs font-semibold text-health-blueAccent hover:underline flex items-center gap-1"
+          className="flex shrink-0 items-center gap-1 text-xs font-semibold text-health-deepGreen hover:underline"
         >
           <span>View All Register</span>
           <ChevronRight className="w-3.5 h-3.5" />
         </button>
       </div>
 
-      <div className="space-y-3">
+      {visits.length === 0 ? (
+        <div className="rounded-lg border border-dashed border-health-cardBorder bg-health-offWhite px-4 py-8 text-center">
+          <FileCheck2 className="mx-auto h-6 w-6 text-health-navyLight/60" />
+          <p className="mt-2 text-sm font-semibold text-health-navy">No visits in this session</p>
+          <p className="mt-1 text-xs text-health-navyLight">Confirmed register entries will appear here.</p>
+        </div>
+      ) : <div className="space-y-3">
         {visits.slice(0, 4).map((v) => (
-          <div
+          <button
             key={v.visitId}
             onClick={() => onNavigate('history')}
-            className="p-3 rounded-xl bg-slate-50/70 hover:bg-health-cardPale/50 border border-health-cardBorder/80 transition cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2.5"
+            className="flex w-full cursor-pointer flex-col justify-between gap-3 rounded-lg border border-health-cardBorder bg-white p-3 text-left transition hover:border-health-deepGreen/35 hover:bg-health-offWhite sm:flex-row sm:items-center"
           >
-            <div>
-              <div className="flex items-center gap-2">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="font-bold text-sm text-health-navy">{v.name}</span>
                 <Badge variant="default" size="sm">{v.beneficiaryId}</Badge>
                 {v.hasAlert && (
                   <Badge variant="danger" size="sm">
-                    <AlertTriangle className="w-3 h-3 text-rose-600" />
+                    <AlertTriangle className="h-3 w-3 text-rose-600" />
                     <span>Danger Sign</span>
                   </Badge>
                 )}
               </div>
-              <div className="flex items-center gap-3 text-xs text-slate-500 mt-1">
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
                 <span>{v.visitType}</span>
-                <span>•</span>
                 <span>Weight: <strong>{v.weight}</strong></span>
-                <span>•</span>
-                <span>Next: <strong className="text-health-blueAccent">{v.nextVisitDate}</strong></span>
+                <span>Next: <strong className="text-health-deepGreen">{v.nextVisitDate}</strong></span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 self-end sm:self-auto text-xs text-slate-400">
-              <Calendar className="w-3.5 h-3.5" />
+            <div className="flex shrink-0 items-center gap-2 self-start text-xs text-slate-500 sm:self-auto">
+              <CalendarDays className="h-3.5 w-3.5 text-health-deepGreen" />
               <span>{v.confirmedAt?.split(' ')[0] || v.date}</span>
             </div>
-          </div>
+          </button>
         ))}
-      </div>
+      </div>}
     </Card>
   );
 }

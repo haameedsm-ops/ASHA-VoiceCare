@@ -1,4 +1,3 @@
-// HealthButton component – reusable styled button
 import React from "react";
 
 /**
@@ -17,19 +16,11 @@ export default function HealthButton({
   className = "",
   ...rest
 }) {
-  let variantClass = "";
-  switch (variant) {
-    case "secondary":
-      variantClass = "health-button-secondary";
-      break;
-    case "danger":
-      variantClass = "health-button-danger";
-      break;
-    case "primary":
-    default:
-      // Use new deepGreen palette for primary actions
-      variantClass = "bg-health-deepGreen hover:bg-health-darkNavy text-white font-medium px-5 py-3 rounded-xl shadow-sm transition-all duration-150 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2";
-  }
+  const variantClass = {
+    secondary: "health-button-secondary",
+    danger: "health-button-danger",
+    primary: "health-button-primary",
+  }[variant] || "health-button-primary";
   return (
     <button
       type="button"

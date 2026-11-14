@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Mic, Square, Sparkles, RefreshCw, ArrowRight, UserCheck, ShieldCheck, AlertCircle, Volume2 } from 'lucide-react';
+import { Mic, RefreshCw, ArrowRight, UserCheck, ShieldCheck, AlertCircle, Volume2, Wifi, WifiOff, ClipboardCheck } from 'lucide-react';
 import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
 import MicButton from '../components/voice/MicButton';
@@ -10,8 +10,8 @@ import { VoiceSocketClient } from '../services/voiceSocket';
 
 export default function VoiceAssistantPage({ onNavigate, selectedLanguage, targetBeneficiary, onExtractionComplete }) {
   // Voice interaction states: 'IDLE', 'LISTENING', 'PROCESSING', 'SPEAKING'
-  const [isSimulated, setIsSimulated] = useState(false);
-  const [providerStatus, setProviderStatus] = useState('');
+  const [voiceState, setVoiceState] = useState('IDLE');
+  const [connectionStatus, setConnectionStatus] = useState('disconnected');
   const [transcript, setTranscript] = useState('');
   const [interimText, setInterimText] = useState('');
   const [readbackText, setReadbackText] = useState('');
@@ -29,6 +29,8 @@ export default function VoiceAssistantPage({ onNavigate, selectedLanguage, targe
 
     socketRef.current = new VoiceSocketClient({
       url: 'ws://localhost:8000/ws/voice-register',
+      onConnect: () => setConnectionStatus('connected'),
+      onClose: () => setConnectionStatus((status) => status === 'error' ? 'error' : 'disconnected'),
       onMessage: (msg) => {
         if (msg.event === 'INTERIM_TRANSCRIPT') {
           setInterimText(msg.transcript);
@@ -53,7 +55,8 @@ export default function VoiceAssistantPage({ onNavigate, selectedLanguage, targe
         }
       },
       onError: (err) => {
-        console.warn('Backend WebSocket offline. Running in local simulation mode.');
+        console.warn('Voice service WebSocket connection failed:', err);
+        setConnectionStatus('error');
       }
     });
 
@@ -63,6 +66,24 @@ export default function VoiceAssistantPage({ onNavigate, selectedLanguage, targe
     };
   }, []);
 
+  const startAudioCapture = async () => {
+    await recorderRef.current.start(
+        (pcmChunk) => {
+          setChunkCount((prev) => prev + 1);
+          if (socketRef.current && socketRef.current.isConnected) {
+            socketRef.current.sendAudioChunk(pcmChunk);
+          }
+        },
+        (err) => {
+          console.warn('Microphone permission error:', err);
+          setMicError('Microphone permission denied or the recording device is busy.');
+        }
+      );
+
+    setAnalyserNode(recorderRef.current.getAnalyserNode());
+    setVoiceState('LISTENING');
+  };
+
   const startVoiceRecording = async () => {
     setMicError(null);
     setInterimText('');
@@ -71,39 +92,19 @@ export default function VoiceAssistantPage({ onNavigate, selectedLanguage, targe
 
     const benId = targetBeneficiary ? targetBeneficiary.id : 'BEN-102';
 
-    // 1. Connect WebSocket if not connected
     try {
       if (!socketRef.current.isConnected) {
+        setConnectionStatus('connecting');
         await socketRef.current.connect();
       }
       socketRef.current.startSession(selectedLanguage, benId);
     } catch (err) {
-      console.info('WebSocket fallback to offline mode');
+      setConnectionStatus('error');
+      console.info('Voice service is unavailable; audio will not be sent to the backend.');
     }
 
-    // 2. Start microphone capture
     try {
-      await recorderRef.current.start(
-        (pcmChunk) => {
-          setChunkCount((prev) => prev + 1);
-          // Stream raw 16kHz PCM chunk to backend WebSocket
-          if (socketRef.current && socketRef.current.isConnected) {
-            socketRef.current.sendAudioChunk(pcmChunk);
-          }
-        },
-        (err) => {
-          console.warn('Microphone permission error:', err);
-          setMicError('Microphone permission denied or device busy. Voice test simulation enabled.');
-        }
-      );
-
-      setAnalyserNode(recorderRef.current.getAnalyserNode());
-      setVoiceState('LISTENING');
-
-      // If WebSocket is not connected, we do NOT fabricate a transcript.
-      // The backend will return an empty transcript with provider_status "WAITING_FOR_SPEECH".
-      // UI will show the simulation banner (see below) and the user can provide a manual transcript.
-
+      await startAudioCapture();
     } catch (err) {
       setMicError(err.message || 'Microphone error');
     }
@@ -116,10 +117,6 @@ export default function VoiceAssistantPage({ onNavigate, selectedLanguage, targe
 
     if (socketRef.current && socketRef.current.isConnected) {
       socketRef.current.stopStream();
-    } else {
-      // No local fallback simulation – rely on manual transcript input.
-      // If the backend is disconnected, the UI will show the simulation banner and the user must submit a manual transcript.
-
     }
   };
 
@@ -127,11 +124,11 @@ export default function VoiceAssistantPage({ onNavigate, selectedLanguage, targe
     if (socketRef.current) {
       socketRef.current.triggerBargeIn();
     }
-    setVoiceState('LISTENING');
-    setTranscript((prev) => prev + ' [CORRECTION]: Baby weight is actually 3.10 kilograms.');
-    if (extractedData) {
-      setExtractedData({ ...extractedData, weight: 3.10 });
-    }
+    setMicError(null);
+    startAudioCapture().catch((err) => {
+      setMicError(err.message || 'Microphone error');
+      setVoiceState('IDLE');
+    });
   };
 
   const handleProceedToVerification = () => {
@@ -147,49 +144,45 @@ export default function VoiceAssistantPage({ onNavigate, selectedLanguage, targe
 
   return (
     <div className="space-y-6 pb-24 md:pb-6 max-w-4xl mx-auto">
-      {/* Header Info */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="flex flex-col gap-4 border-b border-health-cardBorder pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-health-navy tracking-tight">Voice Field Register</h1>
-          <p className="text-xs sm:text-sm text-health-navyLight">
+          <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-health-deepGreen">
+            <Mic className="h-4 w-4" />
+            Visit workflow · Step 1 of 2
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-health-navy sm:text-3xl">Voice Field Register</h1>
+          <p className="mt-1.5 text-sm text-health-navyLight">
             Capture household-visit observations by voice and review the available transcript.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge
-            variant={
-              voiceState === 'LISTENING'
-                ? 'danger'
-                : voiceState === 'SPEAKING'
-                ? 'warning'
-                : voiceState === 'PROCESSING'
-                ? 'neutral'
-                : 'default'
-            }
-          >
-            <span
-              className={`w-2 h-2 rounded-full ${
-                voiceState === 'LISTENING'
-                  ? 'bg-rose-500 animate-ping'
-                  : voiceState === 'SPEAKING'
-                  ? 'bg-amber-500 animate-pulse'
-                  : 'bg-health-blueAccent'
-              }`}
-            ></span>
-            <span>{voiceState}</span>
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant={connectionStatus === 'connected' ? 'success' : connectionStatus === 'error' ? 'danger' : 'neutral'}>
+            {connectionStatus === 'connected' ? <Wifi className="h-3.5 w-3.5" /> : <WifiOff className="h-3.5 w-3.5" />}
+            <span>
+              {connectionStatus === 'connected'
+                ? 'Voice service connected'
+                : connectionStatus === 'connecting'
+                ? 'Connecting…'
+                : connectionStatus === 'error'
+                ? 'Voice service unavailable'
+                : 'Voice service not connected'}
+            </span>
           </Badge>
-          <Badge variant="neutral">Lang: {selectedLanguage}</Badge>
+          <Badge variant={voiceState === 'LISTENING' ? 'danger' : voiceState === 'SPEAKING' ? 'warning' : 'neutral'}>
+            <span className={`h-2 w-2 rounded-full ${voiceState === 'LISTENING' ? 'animate-pulse bg-rose-500' : voiceState === 'SPEAKING' ? 'animate-pulse bg-amber-500' : 'bg-slate-400'}`} />
+            <span>{voiceState === 'IDLE' ? 'Ready' : voiceState}</span>
+          </Badge>
+          <Badge variant="default">Lang: {selectedLanguage}</Badge>
         </div>
       </div>
 
-      {/* Target Beneficiary Context Banner if pre-selected */}
       {targetBeneficiary && (
-        <div className="bg-health-cardPale border border-health-cardBorder rounded-xl p-3.5 flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-health-cardBorder bg-health-lightMint/60 p-4">
           <div className="flex items-center gap-2.5">
-            <UserCheck className="w-5 h-5 text-health-blueAccent shrink-0" />
+            <UserCheck className="h-5 w-5 shrink-0 text-health-deepGreen" />
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500 font-medium">Selected Beneficiary:</span>
+                <span className="text-xs font-medium text-health-navyLight">Selected beneficiary</span>
                 <span className="text-sm font-bold text-health-navy">{targetBeneficiary.name}</span>
                 <Badge variant="royal" size="sm">{targetBeneficiary.id}</Badge>
               </div>
@@ -200,30 +193,43 @@ export default function VoiceAssistantPage({ onNavigate, selectedLanguage, targe
           </div>
           <button
             onClick={() => onNavigate('beneficiaries')}
-            className="text-xs text-health-blueAccent hover:underline font-semibold"
+            className="shrink-0 text-xs font-semibold text-health-deepGreen hover:underline"
           >
             Switch
           </button>
         </div>
       )}
 
-      {/* Mic Notice if applicable */}
       {micError && (
-        <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+        <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+          <AlertCircle className="h-4 w-4 shrink-0 text-amber-700" />
           <span>{micError}</span>
         </div>
       )}
 
-      {/* Primary Voice Interaction Card */}
-      <Card className="flex flex-col items-center justify-center p-6 sm:p-10 text-center bg-white border-2 border-health-cardBorder space-y-4">
-        {/* Barge-in top indicator when agent is reciting */}
+      {connectionStatus === 'error' && (
+        <div className="flex items-start gap-3 rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-900">
+          <WifiOff className="mt-0.5 h-4 w-4 shrink-0" />
+          <p>
+            <strong>Voice service unavailable.</strong> Microphone capture can still start, but audio will only be sent when the service is connected. No transcript is generated locally.
+          </p>
+        </div>
+      )}
+
+      <Card className="overflow-hidden border-health-cardBorder p-0">
+        <div className="border-b border-health-cardBorder bg-health-offWhite px-5 py-4 sm:px-7">
+          <div className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-health-deepGreen text-xs font-bold text-white">1</span>
+            <h2 className="text-sm font-semibold text-health-navy">Record household visit</h2>
+          </div>
+          <p className="mt-1 pl-9 text-xs text-health-navyLight">Tap the microphone to begin recording. Tap again to stop.</p>
+        </div>
+        <div className="flex flex-col items-center justify-center space-y-5 px-5 py-8 text-center sm:px-8 sm:py-10">
         <BargeInIndicator
           isSpeaking={voiceState === 'SPEAKING'}
           onInterrupt={handleInterrupt}
         />
 
-        {/* Large Tactile Mic Button */}
         <div className="py-2">
           <MicButton
             state={voiceState}
@@ -232,16 +238,14 @@ export default function VoiceAssistantPage({ onNavigate, selectedLanguage, targe
           />
         </div>
 
-        {/* Live Canvas Audio Waveform */}
         <WaveformVisualizer
           isRecording={voiceState === 'LISTENING'}
           isSpeaking={voiceState === 'SPEAKING'}
           analyserNode={analyserNode}
         />
 
-        {/* Streaming PCM diagnostic badge */}
         {voiceState === 'LISTENING' && (
-          <div className="text-[11px] text-slate-500 flex items-center gap-2 font-mono">
+          <div className="flex flex-wrap items-center justify-center gap-2 text-[11px] font-mono text-slate-500">
             <span>Captured PCM Chunks: <strong>{chunkCount}</strong></span>
             <span>•</span>
             <span>Sample Rate: 16,000 Hz</span>
@@ -249,14 +253,20 @@ export default function VoiceAssistantPage({ onNavigate, selectedLanguage, targe
             <span>Encoding: Linear PCM 16-bit Mono</span>
           </div>
         )}
+        </div>
       </Card>
 
-      {/* Live Transcript & Extraction Card */}
-      <Card pale={true} className="space-y-3">
-        <div className="flex items-center justify-between">
+      <Card className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-health-cardBorder pb-3">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-health-blueAccent" />
-            <span className="text-xs sm:text-sm font-bold text-health-navy uppercase tracking-wider">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-health-lightMint text-health-deepGreen">
+              <ClipboardCheck className="h-4 w-4" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-health-navy">Visit transcript</h2>
+              <p className="mt-0.5 text-xs text-health-navyLight">Review captured speech before proceeding.</p>
+            </div>
+            <span className="sr-only">
               Voice Transcript
             </span>
           </div>
@@ -269,7 +279,7 @@ export default function VoiceAssistantPage({ onNavigate, selectedLanguage, targe
                 setExtractedData(null);
                 setVoiceState('IDLE');
               }}
-              className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1"
+              className="flex items-center gap-1 rounded-md px-2 py-1 text-xs text-health-navyLight transition hover:bg-health-offWhite hover:text-health-navy"
             >
               <RefreshCw className="w-3 h-3" />
               <span>Reset</span>
@@ -277,21 +287,21 @@ export default function VoiceAssistantPage({ onNavigate, selectedLanguage, targe
           )}
         </div>
 
-        <div className="min-h-[100px] bg-white rounded-xl p-4 border border-health-cardBorder text-sm text-health-navy font-mono leading-relaxed relative">
+        <div className="relative min-h-32 rounded-lg border border-health-cardBorder bg-health-offWhite p-4 text-sm leading-6 text-health-charcoal">
           {transcript ? (
             <div>
               <span>{transcript}</span>
               {interimText && (
-                <span className="text-health-blueAccent font-semibold ml-1 bg-health-blueLight/50 px-1 rounded animate-pulse">
+                <span className="ml-1 rounded bg-health-lightMint px-1 font-semibold text-health-deepGreen">
                   {interimText}...
                 </span>
               )}
             </div>
           ) : (
-            <div className="text-slate-400 italic font-sans text-xs flex flex-col items-center justify-center py-6">
-              <Mic className="w-6 h-6 text-slate-300 mb-1" />
-              <span>Tap the microphone button above and speak your home-visit observations.</span>
-              <span className="text-[11px] text-slate-400 mt-1">
+            <div className="flex flex-col items-center justify-center py-6 text-xs italic text-slate-500">
+              <Mic className="mb-2 h-6 w-6 text-health-deepGreen/60" />
+              <span>Captured speech will appear here after the voice service responds.</span>
+              <span className="mt-1 text-[11px] not-italic text-slate-400">
                 E.g.: "Today I visited beneficiary 102. Baby weight is 2.8 kilograms. Next visit 15 December."
               </span>
             </div>
@@ -300,9 +310,9 @@ export default function VoiceAssistantPage({ onNavigate, selectedLanguage, targe
 
         {/* Readback announcement if available */}
         {readbackText && (
-          <div className="p-3 bg-health-blueLight/40 rounded-xl border border-health-cardBorder text-xs text-health-navy space-y-1">
-            <div className="flex items-center gap-1.5 font-bold text-health-blueAccent uppercase text-[10px] tracking-wider">
-              <Volume2 className="w-3.5 h-3.5" />
+          <div className="space-y-1 rounded-lg border border-health-cardBorder bg-health-lightMint/50 p-3 text-xs text-health-navy">
+            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-health-deepGreen">
+              <Volume2 className="h-3.5 w-3.5" />
               <span>Visit Read-Back</span>
             </div>
             <p className="italic font-sans">"{readbackText}"</p>
@@ -310,17 +320,17 @@ export default function VoiceAssistantPage({ onNavigate, selectedLanguage, targe
         )}
 
         {transcript && (
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <span className="text-xs text-emerald-700 font-medium flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+          <div className="flex flex-col items-center justify-between gap-3 border-t border-health-cardBorder pt-4 sm:flex-row">
+            <span className="flex items-center gap-1.5 text-xs font-medium text-health-deepGreen">
+              <ShieldCheck className="h-4 w-4" />
               <span>Transcript available. Review extracted fields before saving.</span>
             </span>
             <button
               onClick={handleProceedToVerification}
-              className="health-button-primary text-xs py-2 px-4 w-full sm:w-auto"
+              className="health-button-primary w-full py-2 text-xs sm:w-auto"
             >
               <span>Extract & Verify Visit Fields</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="h-3.5 w-3.5" />
             </button>
           </div>
         )}
