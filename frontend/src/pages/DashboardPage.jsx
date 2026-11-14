@@ -7,27 +7,30 @@ import RecentVisitsCard from '../components/dashboard/RecentVisitsCard';
 import ActiveAlertsCard from '../components/dashboard/ActiveAlertsCard';
 
 export default function DashboardPage({ onNavigate, beneficiaries, visits, alerts }) {
-  const totalBeneficiaries = beneficiaries?.length || 48;
-  const completedVisits = visits?.length || 14;
-  const upcomingFollowups = 7;
-  const activeAlertsCount = alerts?.length || 2;
+  const totalBeneficiaries = beneficiaries?.length ?? 0;
+  const completedVisits = visits?.length ?? 0;
+  const upcomingFollowups =
+    alerts?.filter((alert) => alert.severity === 'VACCINATION_DUE').length ?? 0;
+  const activeAlertsCount =
+    alerts?.filter((alert) => alert.severity === 'IMMEDIATE_PHC_REFERRAL').length ?? 0;
 
   return (
     <div className="space-y-6 pb-20 md:pb-6">
       {/* Welcome Hero / Status */}
-      <div className="bg-gradient-to-r from-health-navy via-slate-900 to-health-navy text-white rounded-2xl p-6 sm:p-8 shadow-card-subtle relative overflow-hidden border border-health-cardBorder/30">
+      <div className="bg-health-darkNavy text-white rounded-2xl p-6 sm:p-8 shadow-card-subtle relative overflow-hidden border border-health-cardBorder/30">
         <div className="relative z-10 max-w-xl">
-          <Badge variant="royal" size="sm">Rampur Sub-Centre • Shift Active</Badge>
-          <h1 className="text-2xl sm:text-3xl font-bold mt-2 text-white tracking-tight">
-            Namaste, Sunita Devi
+          <Badge variant="royal" size="sm">Demonstration workspace • Rampur Sub-Centre</Badge>
+          <h1 className="text-2xl sm:text-3xl font-bold mt-3 text-white tracking-tight">
+            Your field register, at a glance
           </h1>
           <p className="text-sm sm:text-base text-slate-200 mt-2">
-            Your voice-powered field register is online. Record home visits naturally in Hindi or your local language with Gnani Prisma speech recognition.
+            Review the records available in this demo session, capture a household visit,
+            and keep track of follow-ups and safety alerts.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <button
               onClick={() => onNavigate('voice')}
-              className="bg-health-blueAccent hover:bg-health-blueHover text-white px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-sm transition active:scale-95"
+              className="bg-health-deepGreen hover:bg-health-darkNavy text-white px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-sm transition active:scale-95"
             >
               <Mic className="w-4 h-4" />
               <span>Start Spoken Visit Note</span>
@@ -47,7 +50,7 @@ export default function DashboardPage({ onNavigate, beneficiaries, visits, alert
         <MetricCard
           title="Total Beneficiaries"
           value={totalBeneficiaries}
-          subtext="+3 registered this month"
+          subtext="Current session records"
           icon={Users}
           badgeText="Active"
           badgeColor="blue"
@@ -56,7 +59,7 @@ export default function DashboardPage({ onNavigate, beneficiaries, visits, alert
         <MetricCard
           title="Visits Completed"
           value={completedVisits}
-          subtext="Verified digital records"
+          subtext="Current session records"
           icon={FileCheck2}
           badgeText="Verified"
           badgeColor="emerald"
@@ -65,16 +68,16 @@ export default function DashboardPage({ onNavigate, beneficiaries, visits, alert
         <MetricCard
           title="Upcoming Follow-ups"
           value={upcomingFollowups}
-          subtext="3 due tomorrow"
+          subtext="From current vaccination alerts"
           icon={CalendarClock}
           badgeText="Pending"
           badgeColor="amber"
           onClick={() => onNavigate('followups')}
         />
         <MetricCard
-          title="Active Referral Flags"
+          title="Immediate Referral Flags"
           value={activeAlertsCount}
-          subtext="Immediate PHC evaluation"
+          subtext="From current safety alerts"
           icon={AlertTriangle}
           badgeText="Urgent"
           badgeColor="rose"
@@ -100,11 +103,11 @@ export default function DashboardPage({ onNavigate, beneficiaries, visits, alert
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold text-sm text-health-navy">Deterministic HBNC / IMNCI Safety Engine</h3>
+                <h3 className="font-bold text-sm text-health-navy">Rule-Based Safety Checks</h3>
                 <Badge variant="royal" size="sm">Rule-Based</Badge>
               </div>
               <p className="text-xs text-health-navyLight mt-1 leading-relaxed">
-                ASHA VoiceCare screens every spoken observation against strict MoHFW clinical guidelines. Danger signs such as low birth weight (&lt;2.0 kg), feeding refusal, hypothermia, and maternal pre-eclampsia trigger instant referral guidance with full traceability.
+                Review flagged observations against approved clinical guidance and referral protocols. Safety decisions should be confirmed by a qualified health professional.
               </p>
             </div>
           </div>

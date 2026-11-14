@@ -9,9 +9,9 @@ export default function ActiveAlertsCard({ alerts, onNavigate }) {
       <div className="flex items-center justify-between pb-2 border-b border-health-cardBorder">
         <div className="flex items-center gap-2">
           <ShieldAlert className="w-5 h-5 text-rose-600" />
-          <h2 className="font-bold text-base text-health-navy">Active PHC Referral Flags</h2>
+          <h2 className="font-bold text-base text-health-navy">Current Safety Alerts</h2>
         </div>
-        <Badge variant="danger" size="sm">{alerts.length} Pending Actions</Badge>
+        <Badge variant="danger" size="sm">{alerts.length} Open Alerts</Badge>
       </div>
 
       <div className="space-y-3">

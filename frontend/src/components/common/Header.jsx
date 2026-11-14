@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mic, Activity, Globe, Wifi } from 'lucide-react';
+import { Mic, Globe } from 'lucide-react';
 
 export default function Header({ selectedLanguage, onLanguageChange, activeTab, onTabChange }) {
   const languages = [
@@ -30,7 +30,7 @@ export default function Header({ selectedLanguage, onLanguageChange, activeTab, 
               </span>
             </div>
             <p className="text-xs text-health-navyLight hidden sm:block">
-              Rampur Sub-Centre • Worker: Sunita Devi
+              Community health field register · Demonstration
             </p>
           </div>
         </div>
@@ -54,9 +54,9 @@ export default function Header({ selectedLanguage, onLanguageChange, activeTab, 
           </div>
 
           {/* Sync / Status Indicator */}
-          <div className="hidden md:flex items-center gap-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1.5 rounded-lg">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Online</span>
+          <div className="hidden md:flex items-center gap-1.5 text-xs font-medium text-health-navyLight bg-health-offWhite border border-health-cardBorder px-2.5 py-1.5 rounded-lg">
+            <span className="w-2 h-2 rounded-full bg-health-deepGreen"></span>
+            <span>Demo workspace</span>
           </div>
         </div>
       </div>

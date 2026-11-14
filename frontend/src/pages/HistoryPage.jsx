@@ -3,47 +3,10 @@ import { History, Calendar, CheckCircle, AlertTriangle, Search, Filter } from 'l
 import Card from '../components/common/Card';
 import Badge from '../components/common/Badge';
 
-export default function HistoryPage({ onNavigate }) {
+export default function HistoryPage({ onNavigate, visits = [] }) {
   const [filterId, setFilterId] = useState('');
 
-  const historyRecords = [
-    {
-      visitId: 'VIS-901',
-      beneficiaryId: 'BEN-102',
-      name: 'Baby of Meena',
-      visitType: 'Newborn Home Visit',
-      weight: '2.80 kg',
-      vaccinationsDue: 'BCG, OPV-0',
-      nextVisitDate: '2026-12-15',
-      confirmedAt: '2026-11-12 10:45 AM',
-      hasAlert: false,
-    },
-    {
-      visitId: 'VIS-902',
-      beneficiaryId: 'BEN-104',
-      name: 'Baby of Sunita',
-      visitType: 'Newborn Home Visit (Day 3)',
-      weight: '1.95 kg',
-      vaccinationsDue: 'Hepatitis B-0',
-      nextVisitDate: '2026-11-14',
-      confirmedAt: '2026-11-11 02:15 PM',
-      hasAlert: true,
-      alertText: 'Low Birth Weight (< 2.0 kg) - Immediate PHC Referral Flagged',
-    },
-    {
-      visitId: 'VIS-903',
-      beneficiaryId: 'BEN-101',
-      name: 'Meena Sharma',
-      visitType: 'ANC Visit (3rd Trimester)',
-      weight: '54.5 kg',
-      vaccinationsDue: 'TT-2 Booster',
-      nextVisitDate: '2026-11-20',
-      confirmedAt: '2026-11-04 11:30 AM',
-      hasAlert: false,
-    },
-  ];
-
-  const filtered = historyRecords.filter(
+  const filtered = visits.filter(
     (r) =>
       r.beneficiaryId.toLowerCase().includes(filterId.toLowerCase()) ||
       r.name.toLowerCase().includes(filterId.toLowerCase())
@@ -55,10 +18,10 @@ export default function HistoryPage({ onNavigate }) {
         <div>
           <h1 className="text-2xl font-bold text-health-navy tracking-tight">Visit History & Digital Register</h1>
           <p className="text-xs sm:text-sm text-health-navyLight">
-            Audit trail of confirmed spoken records persisted into PostgreSQL/Supabase.
+            Confirmed visit records from the current demonstration session.
           </p>
         </div>
-        <Badge variant="neutral">3 Verified Records</Badge>
+        <Badge variant="neutral">{visits.length} Session Records</Badge>
       </div>
 
       {/* Filter bar */}
@@ -75,7 +38,16 @@ export default function HistoryPage({ onNavigate }) {
 
       {/* List */}
       <div className="grid gap-4">
-        {filtered.map((record) => (
+        {filtered.length === 0 ? (
+          <Card className="py-12 text-center">
+            <p className="text-sm font-semibold text-slate-600">
+              {filterId ? 'No matching visit records' : 'No visit records in this session'}
+            </p>
+            <p className="mt-1 text-xs text-slate-400">
+              Confirmed visits will appear here.
+            </p>
+          </Card>
+        ) : filtered.map((record) => (
           <Card key={record.visitId} className="space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-health-cardBorder pb-2.5">
               <div className="flex items-center gap-2">

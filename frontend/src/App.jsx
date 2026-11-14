@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Header from './components/common/Header';
 import Navbar from './components/common/Navbar';
 import DashboardPage from './pages/DashboardPage';
+import LandingPage from './pages/LandingPage';
 import BeneficiaryPage from './pages/BeneficiaryPage';
 import VoiceAssistantPage from './pages/VoiceAssistantPage';
 import VerificationPage from './pages/VerificationPage';
@@ -16,7 +17,7 @@ export default function App() {
     workerId: 'ASHA-RMP-04',
     subCentre: 'Rampur Sub-Centre',
   });
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('home');
   const [selectedLanguage, setSelectedLanguage] = useState('hi-IN');
   const [beneficiaries, setBeneficiaries] = useState(INITIAL_BENEFICIARIES);
   const [targetBeneficiaryForVisit, setTargetBeneficiaryForVisit] = useState(null);
@@ -146,6 +147,8 @@ export default function App() {
 
   const renderActivePage = () => {
     switch (activeTab) {
+        case 'home':
+          return <LandingPage onNavigate={setActiveTab} />;
       case 'dashboard':
         return (
           <DashboardPage
@@ -205,9 +208,15 @@ export default function App() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
       />
-      <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
+      {activeTab !== 'home' && <Navbar activeTab={activeTab} onTabChange={setActiveTab} />}
 
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-6">
+      <main
+        className={
+          activeTab === 'home'
+            ? 'flex-1 w-full'
+            : 'flex-1 max-w-6xl w-full mx-auto px-4 py-6'
+        }
+      >
         {renderActivePage()}
       </main>
     </div>

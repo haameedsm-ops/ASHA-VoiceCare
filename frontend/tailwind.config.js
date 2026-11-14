@@ -9,15 +9,20 @@ export default {
       colors: {
         health: {
           bg: '#FFFFFF',
-          bgSoft: '#F8FAFC',
-          navy: '#0A192F',
-          navyMuted: '#1E293B',
-          navyLight: '#334155',
-          cardPale: '#F0F7FF',
-          cardBorder: '#D0E3F7',
-          blueAccent: '#1D4ED8',
-          blueHover: '#1E40AF',
-          blueLight: '#E0F2FE',
+          bgSoft: '#F7F9F7',
+          navy: '#17324D',
+          deepGreen: '#176B4D',
+          darkNavy: '#17324D',
+          lightMint: '#DDF2EA',
+          offWhite: '#F7F9F7',
+          charcoal: '#263238',
+          navyMuted: '#263238',
+          navyLight: '#52636B',
+          cardPale: '#EEF7F2',
+          cardBorder: '#D6E4DC',
+          blueAccent: '#176B4D',
+          blueHover: '#12563E',
+          blueLight: '#DDF2EA',
           danger: '#DC2626',
           dangerSoft: '#FEF2F2',
           dangerBorder: '#FECACA',
@@ -28,7 +33,7 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: ['Inter', 'Noto Sans Devanagari', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
       boxShadow: {
         'card-subtle': '0 1px 3px 0 rgba(10, 25, 47, 0.05), 0 1px 2px 0 rgba(10, 25, 47, 0.03)',

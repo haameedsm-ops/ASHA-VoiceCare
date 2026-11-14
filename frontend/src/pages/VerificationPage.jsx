@@ -128,12 +128,12 @@ export default function VerificationPage({ onNavigate, visitData, onVisitConfirm
           </button>
           <h1 className="text-2xl font-bold text-health-navy tracking-tight">Visit Verification & Read-Back</h1>
           <p className="text-xs sm:text-sm text-health-navyLight">
-            Verify all 5 mandatory fields extracted by AI before committing to the digital register.
+            Review and correct the captured visit fields before saving the register entry.
           </p>
         </div>
         <Badge variant="success">
           <CheckCircle2 className="w-3.5 h-3.5" />
-          <span>All 5 Mandatory Fields Validated</span>
+          <span>Review 5 Required Fields</span>
         </Badge>
       </div>
 
@@ -161,7 +161,7 @@ export default function VerificationPage({ onNavigate, visitData, onVisitConfirm
           </div>
           <div>
             <span className="text-xs font-bold text-health-blueAccent uppercase tracking-wider">
-              Gnani Timbre v3.0 Spoken Read-Back Script
+              Visit Read-Back
             </span>
             <p className="text-xs sm:text-sm text-health-navy mt-0.5">
               <em>"I recorded beneficiary {fields.beneficiary_id.replace('BEN-', '')}, visit type {fields.visit_type}, weight {fields.weight} kilograms, vaccinations due {fields.vaccinations_due}, and next visit date {fields.next_visit_date}. Is this correct?"</em>

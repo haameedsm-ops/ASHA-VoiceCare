@@ -43,10 +43,10 @@ export default function FollowupPage() {
         <div>
           <h1 className="text-2xl font-bold text-health-navy tracking-tight">Follow-Up & Vaccination Schedule</h1>
           <p className="text-xs sm:text-sm text-health-navyLight">
-            Upcoming village visits, pending immunisation deadlines, and active referral tracking.
+            Demonstration follow-up items for upcoming visits, immunisation deadlines, and referrals.
           </p>
         </div>
-        <Badge variant="warning">3 Pending Follow-ups</Badge>
+        <Badge variant="warning">Demo Schedule</Badge>
       </div>
 
       <div className="grid gap-4">

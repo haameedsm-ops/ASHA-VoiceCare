@@ -152,7 +152,7 @@ export default function VoiceAssistantPage({ onNavigate, selectedLanguage, targe
         <div>
           <h1 className="text-2xl font-bold text-health-navy tracking-tight">Voice Field Register</h1>
           <p className="text-xs sm:text-sm text-health-navyLight">
-            Streaming Indic speech recognition • Gnani Prisma v3.0 STT & Timbre v3.0 Read-Back
+            Capture household-visit observations by voice and review the available transcript.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -257,7 +257,7 @@ export default function VoiceAssistantPage({ onNavigate, selectedLanguage, targe
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-health-blueAccent" />
             <span className="text-xs sm:text-sm font-bold text-health-navy uppercase tracking-wider">
-              Live Speech Transcription (Gnani Prisma v3.0)
+              Voice Transcript
             </span>
           </div>
           {transcript && (
@@ -303,7 +303,7 @@ export default function VoiceAssistantPage({ onNavigate, selectedLanguage, targe
           <div className="p-3 bg-health-blueLight/40 rounded-xl border border-health-cardBorder text-xs text-health-navy space-y-1">
             <div className="flex items-center gap-1.5 font-bold text-health-blueAccent uppercase text-[10px] tracking-wider">
               <Volume2 className="w-3.5 h-3.5" />
-              <span>Gnani Timbre Spoken Verification Prompt</span>
+              <span>Visit Read-Back</span>
             </div>
             <p className="italic font-sans">"{readbackText}"</p>
           </div>
@@ -313,7 +313,7 @@ export default function VoiceAssistantPage({ onNavigate, selectedLanguage, targe
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
             <span className="text-xs text-emerald-700 font-medium flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Speech captured. Ready for structured 5-field verification.</span>
+              <span>Transcript available. Review extracted fields before saving.</span>
             </span>
             <button
               onClick={handleProceedToVerification}

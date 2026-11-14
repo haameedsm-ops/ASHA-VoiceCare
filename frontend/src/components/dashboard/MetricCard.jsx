@@ -4,6 +4,9 @@ import Card from '../common/Card';
 export default function MetricCard({ title, value, subtext, icon: Icon, badgeText, badgeColor = 'blue', onClick }) {
   const colorMap = {
     blue: 'bg-health-cardPale text-health-blueAccent border-health-cardBorder',
+    success: 'bg-health-successSoft text-health-success border-health-cardBorder',
+    warning: 'bg-health-warningSoft text-health-warning border-health-cardBorder',
+    danger: 'bg-health-dangerSoft text-health-danger border-health-cardBorder',
     emerald: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     amber: 'bg-amber-50 text-amber-700 border-amber-200',
     rose: 'bg-rose-50 text-rose-700 border-rose-200',

@@ -39,7 +39,7 @@ export default function BeneficiaryPage({ beneficiaries, onAddBeneficiary, onSel
   };
 
   return (
-    <div className="space-y-6 pb-20 md:pb-6">
+    <div className="space-y-6 pb-20 md:pb-6 bg-health-offWhite text-health-charcoal">
       {/* Header and Add Button */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

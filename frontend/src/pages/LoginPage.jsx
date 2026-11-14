@@ -21,14 +21,14 @@ export default function LoginPage({ onLogin }) {
           </div>
           <h1 className="text-2xl font-bold text-health-navy tracking-tight">ASHA VoiceCare</h1>
           <p className="text-xs sm:text-sm text-health-navyLight">
-            AI-Powered Voice Field Register for Community Health Workers
+            Voice-assisted field register for community health workers
           </p>
         </div>
 
         <Card className="p-6 sm:p-8 space-y-5 border-2 border-health-cardBorder">
           <div className="flex items-center justify-between pb-3 border-b border-health-cardBorder">
             <span className="text-xs font-bold uppercase tracking-wider text-health-navyLight">Worker Login</span>
-            <Badge variant="royal" size="sm">Field Mode</Badge>
+            <Badge variant="royal" size="sm">Demo Access</Badge>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -75,7 +75,7 @@ export default function LoginPage({ onLogin }) {
 
           <div className="pt-2 flex items-center justify-center gap-1.5 text-[11px] text-slate-500 text-center">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Secure Offline-Ready Healthcare Session</span>
+            <span>Demonstration only · credentials are not verified</span>
           </div>
         </Card>
       </div>
