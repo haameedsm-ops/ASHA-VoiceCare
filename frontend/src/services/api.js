@@ -1,8 +1,9 @@
 /**
- * REST API client for ASHA VoiceCare FastAPI backend
+ * REST API client for ASHA VoiceCare FastAPI backend.
+ * Same-origin routing works locally through the Vite proxy and on Vercel Services.
  */
 
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+const API_BASE_URL = '/api/v1';
 
 export async function fetchHealthStatus() {
   const res = await fetch(`${API_BASE_URL}/health`);
@@ -50,14 +51,14 @@ export async function fetchSafetyAlerts() {
 }
 
 export async function fetchFollowups(status = null) {
-  const url = status ? `${API_BASE_URL}/followups?status=${status}` : `${API_BASE_URL}/followups`;
+  const url = status ? `${API_BASE_URL}/followups?status=${encodeURIComponent(status)}` : `${API_BASE_URL}/followups`;
   const res = await fetch(url);
   if (!res.ok) throw new Error('Failed to fetch followups');
   return res.json();
 }
 
 export async function updateFollowupStatus(followupId, status) {
-  const res = await fetch(`${API_BASE_URL}/followups/${followupId}/status`, {
+  const res = await fetch(`${API_BASE_URL}/followups/${encodeURIComponent(followupId)}/status`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status }),
